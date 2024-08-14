@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Code\\ForentKemonoUltraDownloader\\ForentKemonoUltraDownloader.csproj": {}
+    "C:\\Code\\FKUD\\FKUD\\ForentKemonoUltraDownloader.csproj": {}
   },
   "projects": {
-    "C:\\Code\\ForentKemonoUltraDownloader\\ForentKemonoUltraDownloader.csproj": {
+    "C:\\Code\\FKUD\\FKUD\\ForentKemonoUltraDownloader.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Code\\ForentKemonoUltraDownloader\\ForentKemonoUltraDownloader.csproj",
+        "projectUniqueName": "C:\\Code\\FKUD\\FKUD\\ForentKemonoUltraDownloader.csproj",
         "projectName": "FKUD",
-        "projectPath": "C:\\Code\\ForentKemonoUltraDownloader\\ForentKemonoUltraDownloader.csproj",
+        "projectPath": "C:\\Code\\FKUD\\FKUD\\ForentKemonoUltraDownloader.csproj",
         "packagesPath": "C:\\Users\\forent\\.nuget\\packages\\",
-        "outputPath": "C:\\Code\\ForentKemonoUltraDownloader\\obj\\",
+        "outputPath": "C:\\Code\\FKUD\\FKUD\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\forent\\AppData\\Roaming\\NuGet\\NuGet.Config",

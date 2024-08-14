@@ -27,6 +27,7 @@ namespace ForentKemonoUltraDownloader
 
         private static HttpClient httpClient;
         private static HttpClientHandler httpClientHandler;
+        private static int timeout = 1;
 
         private static readonly Random random = new Random();
 
@@ -92,7 +93,7 @@ namespace ForentKemonoUltraDownloader
 
             httpClient = new HttpClient(handler)
             {
-                Timeout = TimeSpan.FromSeconds(1)
+                Timeout = TimeSpan.FromSeconds(timeout)
             };
         }
 
@@ -434,6 +435,9 @@ namespace ForentKemonoUltraDownloader
                 .Expand()
                 .BorderColor(Color.Red1);
             layout["BottomRight"].Update(bottomRightPanel);
+
+            timeout = 120;
+            InitializeHttpClient();
 
             await AnsiConsole.Live(layout).StartAsync(async ctx =>
             {
