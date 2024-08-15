@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "lxRFIZRlkZ94Q4tohYrbopckOoVq7+9KHUIVli23w1w1n/6ptCF10PzdRDwUv9Q8cMYvV/mgf4XNjS9yEbDHtQ==",
+  "dgSpecHash": "cVSAOajHfDubrgp6x9QSA2nGAOeIbhbS7sXzy23vmP4R+cOTCdcboL/i9Qm5BBL3nbAcY766ZwLNccVS75jpxQ==",
   "success": true,
   "projectFilePath": "C:\\Code\\FKUD\\FKUD\\ForentKemonoUltraDownloader.csproj",
   "expectedPackageFiles": [
@@ -15,10 +15,7 @@
     "C:\\Users\\forent\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
     "C:\\Users\\forent\\.nuget\\packages\\spectre.console\\0.49.1\\spectre.console.0.49.1.nupkg.sha512",
     "C:\\Users\\forent\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
-    "C:\\Users\\forent\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512",
-    "C:\\Users\\forent\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\7.0.9\\microsoft.netcore.app.runtime.win-x64.7.0.9.nupkg.sha512",
-    "C:\\Users\\forent\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\7.0.9\\microsoft.windowsdesktop.app.runtime.win-x64.7.0.9.nupkg.sha512",
-    "C:\\Users\\forent\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\7.0.9\\microsoft.aspnetcore.app.runtime.win-x64.7.0.9.nupkg.sha512"
+    "C:\\Users\\forent\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512"
   ],
   "logs": []
 }

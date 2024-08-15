@@ -375,6 +375,7 @@ namespace ForentKemonoUltraDownloader
             appSettings.ProxyAdress = proxyAdress;
             SaveSettings();
 
+            timeout = 1;
             InitializeHttpClient();
             siteConnection = await CheckSiteConnection(baseSiteUrl) == true ? "Установлено" : "Отсутствует";
             
