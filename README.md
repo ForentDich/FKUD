@@ -11,7 +11,9 @@ F_ID
 ```
 Где P - Patreon, F - Fanbox. ID - цифры, которые указаны в ссылке (например https://kemono.su/patreon/user/0123456), нужно просто взять 0123456
 Также, если нет соединения с сайтом, можно попробовать указать адрес прокси.
----------------------------------------------------------------------------
+
+----------------------------------------------------------------------------
+
 **FKUD (Forent's Kemono Ultra Downloader)** - A small console application made in C#, the purpose of which is to download a large amount of content from the Kemono website.
 To start working, you need to make a list of authors in a txt file.
 The file structure looks like this:
