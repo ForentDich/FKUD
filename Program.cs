@@ -14,10 +14,16 @@ namespace ForentKemonoUltraDownloader
 {
     internal class Program
     {
+        [DllImport("user32.dll")]
+        static extern int GetSystemMetrics(int nIndex);
+
+        const int SM_CXSCREEN = 0;
+        const int SM_CYSCREEN = 1;
 
         private const int MF_BYCOMMAND = 0x00000000;
         public const int SC_MAXIMIZE = 0xF030;
         public const int SC_SIZE = 0xF000;
+
 
         private static string baseSiteUrl = "https://kemono.su";
         private static string searchFilter = String.Empty;
@@ -60,6 +66,14 @@ namespace ForentKemonoUltraDownloader
 
         [DllImport("kernel32.dll", ExactSpelling = true)]
         private static extern IntPtr GetConsoleWindow();
+
+        [DllImport("user32.dll")]
+        static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        [DllImport("user32.dll")]
+        static extern bool MoveWindow(IntPtr hWnd, int x, int y, int nWidth, int nHeight, bool bRepaint);
+
         public class AppSettings
         {
             public string SaveDirectoryPath { get; set; } = String.Empty;
@@ -97,6 +111,7 @@ namespace ForentKemonoUltraDownloader
             };
         }
 
+
         static async Task Main(string[] args)
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -119,11 +134,19 @@ namespace ForentKemonoUltraDownloader
             siteConnection = await CheckSiteConnection(baseSiteUrl) == true ? "Установлено" : "Отсутствует";
 
             ConsoleHelper.SetCurrentFont("Consolas", 18);
-            windowWidth = (int)(Console.LargestWindowWidth * 0.85);
-            windowHeight = (int)(Console.LargestWindowHeight * 0.75);
+
+            int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+            int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+            windowWidth = (int)(screenWidth * 0.85);
+            windowHeight = (int)(screenHeight * 0.75);
             heightOfSemiscreenPanel = (windowHeight / 2) - 2;
-            Console.SetWindowSize(windowWidth, windowHeight);
-            Console.SetBufferSize(windowWidth, windowHeight);
+
+            IntPtr consoleWindowHandle = GetForegroundWindow();
+            ShowWindow(consoleWindowHandle, 1);
+            MoveWindow(consoleWindowHandle, 0, 0, windowWidth, windowHeight, true);
+
+            Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
 
 
             WriteMainInfo();
@@ -836,7 +859,7 @@ namespace ForentKemonoUltraDownloader
                     errorQueue.Enqueue($"[red]Тайм-аут запроса для {url}.\nПовторная попытка...[/]");
                     UpdateErrorPanelAction?.Invoke();
                 }
-                catch (HttpRequestException e)
+                catch (HttpRequestException)
                 {
                     errorQueue.Enqueue($"[red]Ошибка получения HTML для {url}.\nПовторная попытка...[/]");
                     UpdateErrorPanelAction?.Invoke();
@@ -862,11 +885,11 @@ namespace ForentKemonoUltraDownloader
                 var response = await httpClient.SendAsync(request);
                 return response.IsSuccessStatusCode;
             }
-            catch (HttpRequestException e)
+            catch (HttpRequestException)
             {
                 return false;
             }
-            catch (TaskCanceledException e)
+            catch (TaskCanceledException)
             {
                 return false;
             }
