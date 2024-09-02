@@ -10,12 +10,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("ForentKemonoUltraDownloader")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("FKUD")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
-[assembly: System.Reflection.AssemblyProductAttribute("ForentKemonoUltraDownloader")]
-[assembly: System.Reflection.AssemblyTitleAttribute("ForentKemonoUltraDownloader")]
+[assembly: System.Reflection.AssemblyProductAttribute("FKUD")]
+[assembly: System.Reflection.AssemblyTitleAttribute("FKUD")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // Создано классом WriteCodeFragment MSBuild.

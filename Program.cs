@@ -44,8 +44,8 @@ namespace ForentKemonoUltraDownloader
         private static string markupSubMain = "[gold1]";
         private static string markupSub2 = "[darkolivegreen1]";
 
-        private static int windowWidth;
-        private static int windowHeight;
+        private static int windowCharWidth;
+        private static int windowCharHeight;
         private static int heightOfSemiscreenPanel;
 
         private static ConcurrentQueue<string> errorQueue = new ConcurrentQueue<string>();
@@ -128,7 +128,7 @@ namespace ForentKemonoUltraDownloader
 
             if (!File.Exists("appsettings.json"))
                 InitializeSettings();
-            
+
             LoadSettings();
             InitializeHttpClient();
             siteConnection = await CheckSiteConnection(baseSiteUrl) == true ? "Установлено" : "Отсутствует";
@@ -138,17 +138,19 @@ namespace ForentKemonoUltraDownloader
             int screenWidth = GetSystemMetrics(SM_CXSCREEN);
             int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-            windowWidth = (int)(screenWidth * 0.85);
-            windowHeight = (int)(screenHeight * 0.75);
-            heightOfSemiscreenPanel = (windowHeight / 2) - 2;
+            int windowWidth = (int)(screenWidth * 0.85);
+            int windowHeight = (int)(screenHeight * 0.75);
 
             IntPtr consoleWindowHandle = GetForegroundWindow();
             ShowWindow(consoleWindowHandle, 1);
             MoveWindow(consoleWindowHandle, 0, 0, windowWidth, windowHeight, true);
 
-            Console.SetBufferSize(Console.WindowWidth, Console.WindowHeight);
+            windowCharWidth = Console.WindowWidth;
+            windowCharHeight = Console.WindowHeight;
+            heightOfSemiscreenPanel = (windowCharHeight / 2) - 2;
 
-
+            Console.SetBufferSize(windowCharWidth, windowCharHeight);
+  
             WriteMainInfo();
             await WriteMainMenu();
 
@@ -206,7 +208,7 @@ namespace ForentKemonoUltraDownloader
                 .AddRow(new Text("Заданный фильтр: "), new Text($"{postFilter}", colorSubMain))
                 .AddRow(new Text("Время выполнения: "), new Text($"{elapsedTime:F1} с", colorSubMain))
                 .AddRow(new Text("Загружено файлов: "), new Text($"{totalDownloadedFiles}", colorSubMain))
-                .AddRow(new Text("Общий размер файлов: "), new Text($"{totalDownloadedSizeInMB} МБ", colorSubMain))
+                .AddRow(new Text("Общий размер файлов: "), new Text($"{totalDownloadedSizeInMB:F2} МБ", colorSubMain))
                 .AddRow(new Text("Авторов с постами: "), new Text($"{totalAuthorsWithPosts}", colorSubMain));
 
             var parametersPanel = new Panel(gridParameters)
@@ -218,6 +220,12 @@ namespace ForentKemonoUltraDownloader
             AnsiConsole.WriteLine();
             WriteLogo();
             AnsiConsole.Write(parametersPanel);
+
+            postFilter = "";
+            elapsedTime = 0;
+            totalDownloadedFiles = 0;
+            totalDownloadedSizeInMB = 0;
+            totalAuthorsWithPosts = 0;
         }
 
         static async Task UpdateMainScreen(int menuIndex = 0)
@@ -603,10 +611,7 @@ namespace ForentKemonoUltraDownloader
 
             if (totalPostCount > 0)
             {
-
-                string authorSaveDirectory = Path.Combine(saveDirectory, authorName);
-                Directory.CreateDirectory(authorSaveDirectory);
-
+                
                 var postTasks = new List<Task>();
 
                 foreach (var postId in postIdList)
@@ -616,7 +621,7 @@ namespace ForentKemonoUltraDownloader
                         await postSemaphore.WaitAsync();
                         try 
                         { 
-                            await ProcessPost(postId, userUrl, authorSaveDirectory, contentSemaphore, recentDownloads, ctx, layout);
+                            await ProcessPost(postId, userUrl, saveDirectory, authorName, contentSemaphore, recentDownloads, ctx, layout);
                             var currentCount = authorPostCounts[authorId];
                             authorPostCounts[authorId] = (currentCount.authorName , currentCount.totalPosts, currentCount.downloadedPosts + 1);
                         }
@@ -632,7 +637,7 @@ namespace ForentKemonoUltraDownloader
                 }
             }
 
-            int tableRightWidth = ((windowWidth / 4) * 3) - 2;
+            int tableRightWidth = ((windowCharWidth / 4) * 3) - 2;
 
             var tableRight = new Table()
                 .AddColumn(new TableColumn("ID Автора").Width(tableRightWidth / 4))
@@ -660,7 +665,7 @@ namespace ForentKemonoUltraDownloader
             ctx.Refresh();
         }
        
-        static async Task ProcessPost(string postId, string userUrl, string authorSaveDirectory, SemaphoreSlim contentSemaphore, ConcurrentQueue<(string FileName, string FileSize)> recentDownloads, LiveDisplayContext ctx, Layout layout)
+        static async Task ProcessPost(string postId, string userUrl, string saveDirectory, string authorName, SemaphoreSlim contentSemaphore, ConcurrentQueue<(string FileName, string FileSize)> recentDownloads, LiveDisplayContext ctx, Layout layout)
         {
             string postUrl = $"{userUrl}/post/{postId}";
             var postHtml = await GetHtmlAsync(postUrl);
@@ -687,17 +692,6 @@ namespace ForentKemonoUltraDownloader
             var postTitleNode = postHtmlDoc.DocumentNode.SelectSingleNode("//h1[@class='post__title']/span[1]");
             var postTitle = postTitleNode?.InnerText ?? postId;
 
-            var attachmentsNode = postHtmlDoc.DocumentNode.SelectNodes("//a[contains(@class, 'fileThumb') or contains(@class, 'post__attachment-link')]");
-            if (attachmentsNode == null || !attachmentsNode.Any())
-            {
-                errorQueue.Enqueue($"[red]Пост {postId} не содержит вложений. Пропускаю.[/]");
-                UpdateErrorPanelAction?.Invoke();
-                return;
-            }
-
-            var postSaveDirectory = Path.Combine(authorSaveDirectory, Sanitize(postTitle));
-            Directory.CreateDirectory(postSaveDirectory);
-
             var fileTasks = new List<Task>();
             var fileTypes = new Dictionary<string, string>
             {
@@ -706,13 +700,22 @@ namespace ForentKemonoUltraDownloader
                 { "Видео", "//a[contains(@class, 'post__attachment-link') and (contains(@href, '.mp4') or contains(@href, '.mov') or contains(@href, '.wmv') or contains(@href, '.flv') or contains(@href, '.avi'))]" }
             };
 
+
             foreach(var option in appSettings.DownloadOptions)
             {
                 if(fileTypes.TryGetValue(option, out var xpath))
                 {
                     var nodes = postHtmlDoc.DocumentNode.SelectNodes(xpath);
-                    if (nodes != null)
+                    if (nodes != null && nodes.Any())
                     {
+                        string authorSaveDirectory = Path.Combine(saveDirectory, authorName);
+                        if (!Directory.Exists(authorSaveDirectory))
+                            Directory.CreateDirectory(authorSaveDirectory);
+
+                        var postSaveDirectory = Path.Combine(authorSaveDirectory, Sanitize(postTitle).Trim());
+                        if (!Directory.Exists(postSaveDirectory))
+                            Directory.CreateDirectory(postSaveDirectory);
+
                         foreach (var node in nodes)
                         {
                             var fileUrl = node.GetAttributeValue("href", "not found");
@@ -766,6 +769,13 @@ namespace ForentKemonoUltraDownloader
                         }
                     }
                 }
+            }
+
+            if (!fileTasks.Any())
+            {
+                errorQueue.Enqueue($"[red]Пост {postId} не содержит вложений. Пропускаю.[/]");
+                UpdateErrorPanelAction?.Invoke();
+                return;
             }
 
             await Task.WhenAll(fileTasks);
